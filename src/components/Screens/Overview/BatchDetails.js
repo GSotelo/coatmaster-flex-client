@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import Card from "../../../UI/Card/CardBI/CardBI";
+import Card from "../../UI/Card/CardBI/CardBI";
 
-import styles from "./BatchInformation.module.css";
+import styles from "./Overview.module.css";
 import { Row, Col } from "antd";
 import { 
   basePropsSI, 

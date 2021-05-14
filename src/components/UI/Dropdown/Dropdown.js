@@ -4,7 +4,7 @@ import GraphContext  from "../../Context/GraphContext";
 
 import styles from "./Dropdown.module.css";
 
-const ControlledDropdown = ({ options }) => {
+const ControlledDropdown = ({ options, placeholder }) => {
 
   const { id, currentValueDropdown, updateDropdownState } = useContext(GraphContext);
 
@@ -12,7 +12,7 @@ const ControlledDropdown = ({ options }) => {
     <Dropdown
       className={styles.dropdown}
       options={options}
-      placeholder="Select"
+      placeholder={placeholder || "Select"}
       selection
       onChange={(e, { value }) => updateDropdownState(e, { value }, id)}
       value={currentValueDropdown}

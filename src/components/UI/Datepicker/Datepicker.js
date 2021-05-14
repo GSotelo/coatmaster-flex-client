@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { DatePicker } from 'antd';
 
-import styles from "./Datepicker.module.css";
+import "./Datepicker.css";
 
 import  GraphContext  from "../../Context/GraphContext";
 
@@ -16,7 +16,7 @@ const Datepicker = () => {
       // }} 
       allowClear={false}
       onChange={a => getDataFromServer(id, a)}
-      className={styles.datepicker}
+      className="datepicker"
     />
   );
 };

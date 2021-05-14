@@ -1,6 +1,7 @@
 .dropdown {
   width: 100%;
   font-size: 1.2rem;
+  max-height: 100%;
 }
 
 .dropdown:global(.ui.selection.dropdown) {

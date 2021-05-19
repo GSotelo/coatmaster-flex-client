@@ -1,12 +1,9 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Dropdown } from 'semantic-ui-react';
-import GraphContext  from "../../Context/GraphContext";
 
 import styles from "./Dropdown.module.css";
 
-const ControlledDropdown = ({ options, placeholder }) => {
-
-  const { id, currentValueDropdown, updateDropdownState } = useContext(GraphContext);
+const ControlledDropdown = ({ options, value, id, onChange, placeholder }) => {
 
   return (
     <Dropdown
@@ -14,8 +11,9 @@ const ControlledDropdown = ({ options, placeholder }) => {
       options={options}
       placeholder={placeholder || "Select"}
       selection
-      onChange={(e, { value }) => updateDropdownState(e, { value }, id)}
-      value={currentValueDropdown}
+      onChange={(e, data) => onChange(e, data, id)}
+      value={value || 1}
+
     />
   );
 };

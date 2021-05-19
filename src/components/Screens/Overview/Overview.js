@@ -8,22 +8,76 @@ import styles from "./Overview.module.css";
 import { propsTitleBarTT, propsDownloadBtn } from "./utilities/props";
 import { Button } from 'antd';
 
+
+// TEST MODE
+import connectLocalServer from "./utilities/connectServer";
+import { createDropdownOptions, validateDataAPL, validateDataBLK } from "./utilities/miscellaneous";
+import _ from "lodash";
+import { DataGrid } from "@material-ui/data-grid";
 class Overview extends Component {
   state = {
     api: {
-      dataTT: []
+      localServer: {
+        status: false,
+        applications: []
+      }
+    },
+
+    dropdown: {
+      options: {
+        optionsAPL: [],
+        optionsBLK: []
+      },
+      currentValue: {
+        currentValueAPL: 1,
+        currentValueBLK: 1
+      }
     }
   }
 
   async componentDidMount() {
-    // Fallback data for table
-    //const response = await getDataForTable();
-    // this.setState({ api: { dataTableBI: response.data } });
+    // Get data from local server
+    const dataAPL = await connectLocalServer.getApplications();
+    const dataBLK = await connectLocalServer.getBlocks(dataAPL, 5021);
+
+    // Create options for dropdowns (Application, blocks)
+    const optionsAPL = createDropdownOptions(dataAPL, validateDataAPL, "applications");
+    const optionsBLK = createDropdownOptions(dataBLK, validateDataBLK, "data");
+
+    this.setState(prevState => {
+      const nextState = { ...prevState };
+      nextState.dropdown.options.optionsAPL = optionsAPL;
+      nextState.dropdown.options.optionsBLK = optionsBLK;
+    });
+
+    this.updateState(dataAPL);
+  }
+
+  updateDropdownState = (e, data, id) => {
+    const { value } = data;
+    const selector = `currentValue${id}`;
+
+    this.setState(prevState => {
+      const nextUpdate = { ...prevState };
+      nextUpdate.dropdown.currentValue[selector] = value;
+      return { nextUpdate };
+    });
+  }
+
+
+
+  updateState = (data) => {
+    if (_.isEmpty(data)) {
+      return;
+    }
+    this.setState({ api: { localServer: data } });
   }
 
   render() {
+
     // Extract some class methods / fields
     const { dataTT } = this.state.api;
+
     const {
       buttonBox,
       contentBox,
@@ -39,8 +93,24 @@ class Overview extends Component {
     } = styles;
 
     // Dropdowns (Application / Block)
-    const DropdownAPL = <Dropdown placeholder="Select application" />;
-    const DropdownBLK = <Dropdown placeholder="Select block" />;
+    const propsDropdownAPL = {
+      id: "APL",
+      onChange: this.updateDropdownState,
+      placeholder: "Select application",
+      options: this.state.dropdown.options.optionsAPL,
+      value: this.state.dropdown.currentValue.currentValueAPL,
+    }
+
+    const propsDropdownBLK = {
+      id: "blk",
+      onChange: this.updateDropdownState,
+      placeholder: "Select block",
+      options: this.state.dropdown.options.optionsBLK,
+      value: this.state.dropdown.currentValue.currentValueBLK,
+    }
+
+    const DropdownAPL = <Dropdown {...propsDropdownAPL} />;
+    const DropdownBLK = <Dropdown {...propsDropdownBLK} />;
 
     // Line chart
     const LineChartTT = <LineChart id="TT" data={[]} />;

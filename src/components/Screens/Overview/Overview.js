@@ -3,23 +3,22 @@ import Datepicker from "../../UI/Datepicker/Datepicker";
 import Dropdown from "../../UI/Dropdown/Dropdown";
 import LineChart from "./utilities/LineChart";
 import TitleBar from "../../Bar/TitleBar/StandardTitleBar";
+import { Button } from 'antd';
 
 import styles from "./Overview.module.css";
 import { propsTitleBarTT, propsDownloadBtn } from "./utilities/props";
-import { Button } from 'antd';
 
 
 // TEST MODE
 import connectLocalServer from "./utilities/connectServer";
-import { createDropdownOptions, validateDataAPL, validateDataBLK } from "./utilities/miscellaneous";
-import _ from "lodash";
-import { DataGrid } from "@material-ui/data-grid";
+import { createDropdownOptions, validateData } from "./utilities/miscellaneous";
 class Overview extends Component {
   state = {
     api: {
       localServer: {
-        status: false,
-        applications: []
+        applications: [],
+        blocks: [],
+        status: false
       }
     },
 
@@ -36,21 +35,17 @@ class Overview extends Component {
   }
 
   async componentDidMount() {
-    // Get data from local server
-    const dataAPL = await connectLocalServer.getApplications();
-    const dataBLK = await connectLocalServer.getBlocks(dataAPL, 5021);
-
-    // Create options for dropdowns (Application, blocks)
-    const optionsAPL = createDropdownOptions(dataAPL, validateDataAPL, "applications");
-    const optionsBLK = createDropdownOptions(dataBLK, validateDataBLK, "data");
+    const dataLocalServer = await connectLocalServer.startup();
+    const optionsAPL = createDropdownOptions(dataLocalServer.applications, validateData);
+    const optionsBLK = createDropdownOptions(dataLocalServer.blocks, validateData);
 
     this.setState(prevState => {
       const nextState = { ...prevState };
+      nextState.api.localServer = dataLocalServer;
       nextState.dropdown.options.optionsAPL = optionsAPL;
       nextState.dropdown.options.optionsBLK = optionsBLK;
+      return nextState;
     });
-
-    this.updateState(dataAPL);
   }
 
   updateDropdownState = (e, data, id) => {
@@ -62,21 +57,47 @@ class Overview extends Component {
       nextUpdate.dropdown.currentValue[selector] = value;
       return { nextUpdate };
     });
+
+    if(id==="BLK"){
+      console.log("REQUEST REPORT");
+      
+      const reqBody = {
+        query: {
+          configurationIds: [5020],
+          sampleIds: [],
+          last: 2
+        }
+      };
+
+      try {
+        connectLocalServer.getReport(reqBody);
+      } catch (error) {
+        const fallback = "fallback";
+        console.error("[getReport]: Request to local server failed")
+        return fallback;
+      }
+    }
   }
 
-
-
-  updateState = (data) => {
-    if (_.isEmpty(data)) {
-      return;
+  createDropdownProps = (ids) => {   
+    const baseProps = {
+      placeholder:"Select",
+      onChange: this.updateDropdownState
     }
-    this.setState({ api: { localServer: data } });
+
+    return ids.map(id => (
+      {
+        ...baseProps,
+        options:this.state.dropdown.options[`options${id}`],
+        value:this.state.dropdown.currentValue[`currentValue${id}`],
+        id,
+      }
+    ));
   }
 
   render() {
-
     // Extract some class methods / fields
-    const { dataTT } = this.state.api;
+    const { createDropdownProps } = this;
 
     const {
       buttonBox,
@@ -92,25 +113,10 @@ class Overview extends Component {
       labelBox,
     } = styles;
 
-    // Dropdowns (Application / Block)
-    const propsDropdownAPL = {
-      id: "APL",
-      onChange: this.updateDropdownState,
-      placeholder: "Select application",
-      options: this.state.dropdown.options.optionsAPL,
-      value: this.state.dropdown.currentValue.currentValueAPL,
-    }
-
-    const propsDropdownBLK = {
-      id: "blk",
-      onChange: this.updateDropdownState,
-      placeholder: "Select block",
-      options: this.state.dropdown.options.optionsBLK,
-      value: this.state.dropdown.currentValue.currentValueBLK,
-    }
-
-    const DropdownAPL = <Dropdown {...propsDropdownAPL} />;
-    const DropdownBLK = <Dropdown {...propsDropdownBLK} />;
+    // Dropdown components
+    const dropdownIds = ["APL", "BLK"];
+    const dropdownProps = createDropdownProps(dropdownIds);
+    const [DropdownAPL, DropdownBLK] = dropdownProps.map(prop => <Dropdown {...prop} />)
 
     // Line chart
     const LineChartTT = <LineChart id="TT" data={[]} />;

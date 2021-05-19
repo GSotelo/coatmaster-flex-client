@@ -1,41 +1,29 @@
 import _ from "lodash";
 import cryptoRandomString from "crypto-random-string";
 
-// Maybe the first 2 funcs can be one...
-export const validateDataAPL = (data, objKey) => {
+export const validateData = (data) => {
   const dataIsEmpty = _.isEmpty(data);
-  const noObjKey = !(objKey in data);
 
-  if (dataIsEmpty && noObjKey) {
-    throw new Error("Data validation failed (applications)");
+  if (dataIsEmpty) {
+    throw new Error("Not possible to create dropdown options from empty data");
   }
 }
 
-export const validateDataBLK = (data, objKey) => {
-  const dataIsEmpty = _.isEmpty(data);
-  const noObjKey = !(objKey in data);
-
-  if (dataIsEmpty && noObjKey) {
-    throw new Error("Data validation failed (blocks)");
-  }
-}
-
-export const createDropdownOptions = (data, validateData, objKey) => {
-  console.log("Data to create DROPDOWN OPTIONS", data, objKey);
-  const fallback = [{ key: 1, value: 1, text: "default" }];
+export const createDropdownOptions = (data, validateData) => {
+ 
+  const fallback = [{ key: 1, value: 1, text: "no-data" }];
 
   try {
-    validateData(data, objKey);
+    validateData(data);
   } catch (err) {
     console.error("[createDropdownOptions]", err.message);
     return fallback;
   }
 
-  const configurationNames = _.map(data[objKey], "name");
+  // There is always a name prop in the response object. This is defined by the local server itself
+  const applicationNames = _.map(data, "name");
 
-  console.log("configurationNames", configurationNames);
-
-  const dropdownOptions = configurationNames.map(
+  const dropdownOptions = applicationNames.map(
     (name, index) => (
       {
         key: cryptoRandomString({ length: 10 }),

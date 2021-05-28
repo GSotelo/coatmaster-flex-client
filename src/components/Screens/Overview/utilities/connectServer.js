@@ -45,7 +45,9 @@ const getReport = async (reqBody) => {
   try {
     response = await axiosCoatmasterFlex.post("/measurement/report", reqBody);
   } catch (err) {
-    throw new Error("report");
+    
+    console.error("[getReport] Not possible to fetch data");
+    return [];
   }
 
   return response.data;
@@ -57,7 +59,8 @@ const startup = async (customAppId) => {
   let blocks = [];
   let status = false;
 
-  const fallback = { applications: [], blocks: [], status: false }
+  // Fallback matches object structure of "this.state.api.localServer"
+  const fallback = { applications: [], blocks: [], status: false };
 
   try {
     status = await getStatus("status");
@@ -79,6 +82,7 @@ const startup = async (customAppId) => {
 
   try {
     blocks = await getBlocks(customAppId || appId);
+    console.log(blocks)
   } catch (error) {
     console.error("[getBlocks]: Not possible to fetch blocks");
     return fallback;

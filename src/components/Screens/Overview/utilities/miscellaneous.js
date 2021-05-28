@@ -21,7 +21,7 @@ export const createDropdownOptions = (data, validateData) => {
   }
 
   // There is always a name prop in the response object. This is defined by the local server itself
-  const applicationNames = _.map(data, "name");
+  const applicationNames = _.map(data, "name"); // Use "id" to verify application - block relationship on main screen
 
   const dropdownOptions = applicationNames.map(
     (name, index) => (

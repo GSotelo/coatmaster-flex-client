@@ -7,6 +7,7 @@ import { Button } from 'antd';
 
 import styles from "./Overview.module.css";
 import { propsTitleBarTT, propsDownloadBtn } from "./utilities/props";
+import _ from "lodash";
 
 
 // TEST MODE
@@ -18,7 +19,8 @@ class Overview extends Component {
       localServer: {
         applications: [],
         blocks: [],
-        status: false
+        status: false,
+        applicationId: []
       }
     },
 
@@ -36,8 +38,9 @@ class Overview extends Component {
 
   async componentDidMount() {
     const dataLocalServer = await connectLocalServer.startup();
-    const optionsAPL = createDropdownOptions(dataLocalServer.applications, validateData);
-    const optionsBLK = createDropdownOptions(dataLocalServer.blocks, validateData);
+    const { applications, blocks } = dataLocalServer;
+    const optionsAPL = createDropdownOptions(applications, validateData);
+    const optionsBLK = createDropdownOptions(blocks, validateData);
 
     this.setState(prevState => {
       const nextState = { ...prevState };
@@ -48,48 +51,89 @@ class Overview extends Component {
     });
   }
 
-  updateDropdownState = (e, data, id) => {
-    const { value } = data;
+  updateDropdownState = async (e, data, id) => {
+    // Controlled dropdown
+    const { value } = data; // Depends on the dropdown's API
     const selector = `currentValue${id}`;
 
     this.setState(prevState => {
       const nextUpdate = { ...prevState };
       nextUpdate.dropdown.currentValue[selector] = value;
-      return { nextUpdate };
+      return nextUpdate;
     });
 
-    if(id==="BLK"){
-      console.log("REQUEST REPORT");
-      
-      const reqBody = {
-        query: {
-          configurationIds: [5020],
-          sampleIds: [],
-          last: 2
-        }
-      };
-
+    
+    // When the selected application changes, the block should change too (optionsBLK)
+    
+    if (id === "APL") {
+      let applicationId, blocks;
       try {
-        connectLocalServer.getReport(reqBody);
-      } catch (error) {
-        const fallback = "fallback";
-        console.error("[getReport]: Request to local server failed")
-        return fallback;
+        console.log("APL DD VALUE", value);
+        const application = this.state.api.localServer.applications[value - 1];
+        applicationId = application.id;
+        blocks = await connectLocalServer.getBlocks(applicationId);
+      } catch (err) {
+        console.error("[updateDropdownState]: Not possible to fetch data for optionsBLK");
+        return;
       }
+
+      // Updates "optionsBLK" data based on current selected application
+      const optionsBLK = createDropdownOptions(blocks, validateData);
+      this.setState(prevState => {
+        const nextState = { ...prevState };
+        nextState.dropdown.options.optionsBLK = optionsBLK;
+        nextState.api.localServer.applicationId = applicationId;
+        return nextState;
+      })
     }
+
+    if (id === "BLK") {
+      console.log("BLK DD VALUE", value);
+      console.log("app id", this.state.api.localServer.applicationId);
+      const applications = this.state.api.localServer.applications;
+      const blocks = this.state.api.localServer.blocks;
+      const configId = _.isEmpty(applications) ? applications[0].id : applications[value-1].id;
+      const sampleId = _.isEmpty(blocks) ? blocks[0].id : blocks[value-1].id;
+      
+      console.log("blocks", blocks);
+      console.log("blocks empty", _.isEmpty(blocks));
+      console.log("applications", applications);
+      console.log("applications empty", _.isEmpty(applications));
+      console.log("application id", configId);
+      //console.log("application id", configId);
+
+      //const sampleId = blocks? blocks[value-1].id:this.state.api.localServer.blocks[0].id;
+     
+      try {
+        const reqBody = {
+          query: {
+            configurationIds: [configId],
+            sampleIds: [sampleId],
+            last: 5
+          }
+        };
+
+        console.dir(reqBody);
+        const response = await connectLocalServer.getReport(reqBody);
+        console.dir(response);
+
+      } catch (err) {
+        console.error("[updateDropdownState]: Not possible to fetch data for measurement report");
+      }
+    }   
   }
 
-  createDropdownProps = (ids) => {   
+  createDropdownProps = (ids) => {
     const baseProps = {
-      placeholder:"Select",
+      placeholder: "Select",
       onChange: this.updateDropdownState
     }
 
     return ids.map(id => (
       {
         ...baseProps,
-        options:this.state.dropdown.options[`options${id}`],
-        value:this.state.dropdown.currentValue[`currentValue${id}`],
+        options: this.state.dropdown.options[`options${id}`],
+        value: this.state.dropdown.currentValue[`currentValue${id}`],
         id,
       }
     ));

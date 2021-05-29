@@ -19,8 +19,7 @@ class Overview extends Component {
       localServer: {
         applications: [],
         blocks: [],
-        status: false,
-        applicationId: []
+        status: false
       }
     },
 
@@ -62,65 +61,86 @@ class Overview extends Component {
       return nextUpdate;
     });
 
-    
-    // When the selected application changes, the block should change too (optionsBLK)
-    
+    // When I call this method all applications are loaded into the state
+    const index = value - 1;
     if (id === "APL") {
-      let applicationId, blocks;
-      try {
-        console.log("APL DD VALUE", value);
-        const application = this.state.api.localServer.applications[value - 1];
-        applicationId = application.id;
-        blocks = await connectLocalServer.getBlocks(applicationId);
-      } catch (err) {
-        console.error("[updateDropdownState]: Not possible to fetch data for optionsBLK");
+      const applicationsIsEmpty = _.isEmpty(this.state.api.localServer.applications);
+
+      console.log(this.state.api.localServer.applications);
+
+      if (applicationsIsEmpty) {
+        console.error("[updateDropdownState] Applications data is empty");
         return;
       }
+      const applicationId = this.state.api.localServer.applications[index].id;
+      console.log("applicationId");
+      console.log(applicationId);
 
-      // Updates "optionsBLK" data based on current selected application
+      let blocks;
+      try {
+        blocks = await connectLocalServer.getBlocks(applicationId);
+      } catch (error) {
+        console.error("[updateDropdownState] Cannot get data for blocks");
+        return;
+      }
+      console.log("blocks");
+      console.dir(blocks);
+
       const optionsBLK = createDropdownOptions(blocks, validateData);
+      console.log("optionsBLK");
+      console.dir(optionsBLK);
+
       this.setState(prevState => {
-        const nextState = { ...prevState };
-        nextState.dropdown.options.optionsBLK = optionsBLK;
-        nextState.api.localServer.applicationId = applicationId;
-        return nextState;
-      })
+        const nextUpdate = { ...prevState };
+        nextUpdate.api.localServer.applicationId = applicationId;
+        nextUpdate.api.localServer.blocks = blocks;
+        nextUpdate.dropdown.options.optionsBLK = optionsBLK;
+        nextUpdate.dropdown.currentValue[selector] = value;
+        return nextUpdate;
+      });
     }
 
     if (id === "BLK") {
-      console.log("BLK DD VALUE", value);
-      console.log("app id", this.state.api.localServer.applicationId);
-      const applications = this.state.api.localServer.applications;
-      const blocks = this.state.api.localServer.blocks;
-      const configId = _.isEmpty(applications) ? applications[0].id : applications[value-1].id;
-      const sampleId = _.isEmpty(blocks) ? blocks[0].id : blocks[value-1].id;
-      
-      console.log("blocks", blocks);
-      console.log("blocks empty", _.isEmpty(blocks));
-      console.log("applications", applications);
-      console.log("applications empty", _.isEmpty(applications));
-      console.log("application id", configId);
-      //console.log("application id", configId);
+      console.log("application id");
+      console.dir(this.state.api.localServer.applicationId);
+      const applicationId = this.state.api.localServer.applicationId;
+      const blockId = this.state.api.localServer.blocks[index]?.id;
 
-      //const sampleId = blocks? blocks[value-1].id:this.state.api.localServer.blocks[0].id;
-     
-      try {
-        const reqBody = {
-          query: {
-            configurationIds: [configId],
-            sampleIds: [sampleId],
-            last: 5
-          }
-        };
+      console.log("blocks");
+      console.dir(this.state.api.localServer.blocks);
 
-        console.dir(reqBody);
-        const response = await connectLocalServer.getReport(reqBody);
-        console.dir(response);
+      console.log("block id");
+      console.dir(blockId);
 
-      } catch (err) {
-        console.error("[updateDropdownState]: Not possible to fetch data for measurement report");
+      let reportData = [];
+      const reqBody = {
+        query: {
+          configurationIds: [applicationId],
+          sampleIds: [blockId],
+          last: 5
+        }
       }
-    }   
+
+      try {
+        reportData = await connectLocalServer.getReport(reqBody);
+      } catch (err) {
+        console.error("[updateDropdownState] Cannot get data for blocks");
+        return;
+      }
+      console.log("reportData");
+      console.dir(reportData);
+
+      this.setState(prevState => {
+        const nextUpdate = { ...prevState };
+        nextUpdate.dropdown.currentValue[selector] = value;
+        return nextUpdate;
+      });
+    }
+
+
+
+
+
   }
 
   createDropdownProps = (ids) => {

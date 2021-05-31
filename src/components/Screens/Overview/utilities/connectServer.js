@@ -57,9 +57,11 @@ const startup = async (customAppId) => {
   let blocks = [];
   let status = false;
   let applicationId = -1;
+  let blockId = -1;
+  let report = {}
 
   // Fallback matches object structure of "this.state.api.localServer"
-  const fallback = { applications, blocks, status, applicationId };
+  const fallback = { applications, blocks, status, blockId, applicationId, report };
 
   try {
     status = await getStatus("status");
@@ -87,7 +89,10 @@ const startup = async (customAppId) => {
     return fallback;
   }
 
-  return { applications, blocks, status, applicationId: appId };
+  // Using first block id during "componentDidMount" 
+  blockId = blocks[0]?.id;
+
+  return { applications, blocks, status, report, blockId, applicationId: appId };
 }
 
 const connectLocalServer = {

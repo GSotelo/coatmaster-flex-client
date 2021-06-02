@@ -1,21 +1,15 @@
-import React, { useContext } from "react";
+import React from "react";
 import { DatePicker } from 'antd';
 
 import "./Datepicker.css";
 
-import  GraphContext  from "../../Context/GraphContext";
-
 const { RangePicker } = DatePicker;
 
 const Datepicker = () => {
-  const { id, getDataFromServer } = useContext(GraphContext);
   return (
     <RangePicker
-      // onChange={(a, b) => {
-      //   getDataFromServer(id, a);
-      // }} 
       allowClear={false}
-      onChange={a => getDataFromServer(id, a)}
+      onChange={a => console.log("[Datepicker] Timefram has changes !")}
       className="datepicker"
     />
   );

@@ -1,9 +1,9 @@
-import React, { Component, PureComponent } from "react";
+import React, { Component } from "react";
+import Button from "../../UI/Button/DonwloadButton/DownloadButton";
 import Datepicker from "../../UI/Datepicker/Datepicker";
 import Dropdown from "../../UI/Dropdown/Dropdown";
 import LineChart from "./utilities/LineChart";
 import TitleBar from "../../Bar/TitleBar/StandardTitleBar";
-import { Button } from 'antd';
 
 import styles from "./Overview.module.css";
 import connectLocalServer from "./utilities/connectServer";
@@ -218,7 +218,7 @@ class Overview extends Component {
         query: {
           configurationIds: [applicationId],
           sampleIds: [blockId],
-          last: 5 // This might be the key to filter elements by date
+          //last: 5 // This might be the key to filter elements by date
         }
       }
 
@@ -249,12 +249,13 @@ class Overview extends Component {
       onChange: this.updateDropdownState
     }
 
-    return ids.map(id => (
+    return ids.map((id, index) => (
       {
         ...baseProps,
         options: this.state.dropdown.options[`options${id}`],
         value: this.state.dropdown.currentValue[`currentValue${id}`],
         id,
+        key:index
       }
     ));
   }
@@ -263,7 +264,8 @@ class Overview extends Component {
     console.log("[Render] UI Rerendering...")
     console.log("[Render] Report:")
     console.log("[Render]", this.state.api.localServer.report);
-
+    // DOM reference to download JSON files
+   
     // Extract some class methods / fields
     const { createDropdownProps } = this;
 
@@ -314,7 +316,9 @@ class Overview extends Component {
               </div>
 
               <div className={buttonBox}>
-                <Button {...propsDownloadBtn}>Donwload</Button>
+                <Button data={dataLineChartTT}>
+                  Download
+                </Button>
               </div>
             </div>
 

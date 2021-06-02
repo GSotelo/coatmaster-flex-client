@@ -25,134 +25,9 @@ const layoutTT = {
   ytitle: "Thickness (um)"
 };
 
-const processDataLine = (data, fallback) => {
-  return fallback;
-}
-
 const LineChart = ({ data, id }) => {
   const layout = layoutTT;
-
-  console.log("[LineChart] Data en linechart");
-  console.dir(data);
-
-  const sampleReport = {
-    generatedDate: "2020-03-27T05:11:53.436+0000",
-    tuples: [
-        [
-            "50,20",
-            "Powder colour",
-            "9352",
-            "1",
-            "358",
-            "2019-09-12T22:46:27",
-            "28.3",
-            "WARNING_FIT",
-            "36.366",
-            "1",
-            "500",
-            "0",
-            "200",
-            "MICROMETRE"
-        ],
-        [
-            "5020",
-            "Powder colour",
-            "9352",
-            "1",
-            "357",
-            "2019-09-12T22:45:20",
-            "19.3",
-            "WARNING_FIT",
-            "36.077",
-            "1",
-            "500",
-            "0",
-            "200",
-            "MICROMETRE"
-        ],
-        [
-            "5020",
-            "Powder colour",
-            "9352",
-            "1",
-            "356",
-            "2019-09-12T22:45:14",
-            "10.2",
-            "WARNING_FIT",
-            "36.077",
-            "1",
-            "500",
-            "0",
-            "200",
-            "MICROMETRE"
-        ],
-        [
-            "5020",
-            "Powder colour",
-            "9352",
-            "1",
-            "348",
-            "2019-09-12T22:38:07",
-            "8.95",
-            "WARNING_FIT",
-            "33.127",
-            "1",
-            "500",
-            "0",
-            "200",
-            "MICROMETRE"
-        ],
-        [
-            "5020",
-            "Powder colour",
-            "9352",
-            "1",
-            "347",
-            "2019-09-12T22:37:50",
-            "6.45",
-            "WARNING_FIT",
-            "32.644",
-            "1",
-            "500",
-            "0",
-            "200",
-            "MICROMETRE"
-        ]
-    ],
-    columnIds: [
-        "application_id",
-        "application_name",
-        "sample_id",
-        "sample_name",
-        "measurement_id",
-        "timestamp",
-        "thickness",
-        "diffusivity",
-        "measurement_status",
-        "temperature",
-        "warning_lower",
-        "warning_upper",
-        "error_lower",
-        "error_upper",
-        "units"
-    ],
-    applicationId: 5020,
-    blockId: 9352
-}
-
-  // Let's get tuple prop
-  // "2019-09-12T22:46:27"
-  const tupple = sampleReport.tuples;
-  const dataForLineChart = tupple.map((el, index) => {
-    return {
-      x: createDateObject(el[5], "YYYY-MM-DDTHH:mm:ss").$d.toISOString(),
-      y: el[6]
-    }
-  });
-
-  console.log("[LineChart] dataForLineChart");
-  console.dir(dataForLineChart);
-
+  let lineData;
 
   const fallback = [
     {
@@ -161,17 +36,23 @@ const LineChart = ({ data, id }) => {
     }
   ];
 
-  const demoDataLine = [
-     {
-       id,
-       data:dataForLineChart
-     }
-  ]
+  let dataArray;
+  try {
+    dataArray = data.tuples.map(el => (
+      {
+        x: createDateObject(el[5], "YYYY-MM-DDTHH:mm:ss").$d.toISOString(), // "2019-09-12T22:46:27"
+        y: el[6]
+      }
+    ));
 
-  const lineData = processDataLine(data, fallback);
+    lineData = [{ id, data: dataArray }];
+  } catch (err) {
+    console.error("[LineChart] Cannot get data from empty array")
+    lineData = fallback;
+  }
 
   return (
-    <Line {...layout} data={demoDataLine} />
+    <Line {...layout} data={lineData} />
   );
 };
 

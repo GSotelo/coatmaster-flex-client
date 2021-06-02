@@ -1,4 +1,3 @@
-import CloseButton from "../../UI/Button/CloseButton/CloseButton";
 import Logo from "../../Logo/Logo";
 import Screen from "../../Screen/Screen";
 import SideBar from "../../Bar/SideBar/SideBar";
@@ -13,8 +12,7 @@ export const propsSideBar = {
 
 export const propsTopBar = {
   brandLogo: <Logo />,
-  currentDate: <SystemDate />,
-  closeButton: <CloseButton />
+  currentDate: <SystemDate />
 };
 
 export const propsLayout = {

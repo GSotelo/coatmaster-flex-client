@@ -25,3 +25,5 @@ yarn-error.log*
 # Giancarlo Sotelo Cabrera
 README.md
 public/robots.txt
+.vscode
+.git-message-template.txt

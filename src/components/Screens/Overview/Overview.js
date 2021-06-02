@@ -50,7 +50,7 @@ class Overview extends Component {
       query: {
         configurationIds: [applicationId],
         sampleIds: [blockId],
-        last: 5 // This might be the key to filter elements by date
+        //last: 5 // This might be the key to filter elements by date
       }
     }
 

@@ -1,0 +1,43 @@
+.cardWithoutFooter {
+  background-color: var(--color-10-blue);
+  border: 1px solid var(--color-idle);
+  border-radius: 2px;
+  color: var(--color-nordson-blue);
+  cursor: pointer;
+  height: 100%;
+  width: 100%;
+}
+
+.cardWithoutFooter:hover{
+  background-color: var(--color-gypsum) !important;
+}
+
+.cardWithoutFooter .header {
+  display: flex;
+  align-items: center;
+  height: 30%;
+  padding: 0.5rem;
+}
+
+.cardWithoutFooter .content {
+  align-items: baseline;
+  display: flex;
+  height: 70%;
+  justify-content: flex-end;
+  padding: 0 0.5rem;
+}
+
+.cardWithoutFooter .header svg {
+  height: 100%;
+}
+
+.cardWithoutFooter .value {
+  align-items: flex-end;
+  display: flex;
+  font-size: 2.4rem;
+  height: 100%;
+}
+
+.cardWithoutFooter .units {
+  font-size: 1.2rem;
+}

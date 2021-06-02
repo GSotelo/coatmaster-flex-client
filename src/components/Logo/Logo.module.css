@@ -1,0 +1,11 @@
+.logoBox {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  padding-left: 0.5rem;
+}
+
+.logo {
+  cursor: pointer;
+  height: 80%;
+}

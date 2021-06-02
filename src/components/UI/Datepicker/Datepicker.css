@@ -1,0 +1,17 @@
+.datepicker {
+  border: 1px solid var(--color-manatee);
+  border-radius: 3px;
+  height: 50%;
+  width: 100%;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.datepicker input {
+  color: var(--color-gray);
+  text-align: center;
+}
+
+.datepicker:hover {
+  border-color: var(--color-denim);
+}

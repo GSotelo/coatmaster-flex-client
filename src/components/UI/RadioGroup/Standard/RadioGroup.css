@@ -1,0 +1,39 @@
+.radioButtons {
+  height: 100%;
+  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.radioButtons .ant-radio-group {
+  border: 1px solid var(--color-idle);
+  border-bottom: 0;
+  border: none
+}
+
+.radioButtons .ant-radio-button-wrapper {
+  color: var(--color-slate);
+}
+
+.radioButtons .ant-radio-button-wrapper-checked {
+  border-color: var(--color-denim);
+}
+
+.radioButtons .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before {
+  background-color: var(--color-denim);
+  ;
+}
+
+.radioButtons .ant-radio-button-wrapper-checked:hover {
+  border-color: var(--color-denim);
+}
+
+.radioButtons .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):first-child {
+  border-color: var(--color-denim);
+  color: var(--color-denim);
+}
+
+.radioButtons .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):focus-within {
+  box-shadow: none;
+  color: var(--color-denim);
+}

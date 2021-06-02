@@ -1,0 +1,39 @@
+.dropdown {
+  width: 100%;
+  font-size: 1.2rem;
+  max-height: 100%;
+}
+
+.dropdown:global(.ui.selection.dropdown) {
+  align-items: center;
+  background-color: var(--color-nordson-blue);
+  display: flex;
+  min-height: 75%;
+  min-width: 100%;
+  max-height: 75%;
+  max-width: 100%;
+}
+
+.dropdown :global(.dropdown.icon) {
+  align-items: center;
+  display: flex;
+  height: 100% !important;
+}
+
+.dropdown :global(.text) {
+  color:#fff;
+  font-weight: normal;
+}
+
+.dropdown :global(.default.text){
+  color:#fff !important;
+}
+
+.dropdown :global(.visible.menu.transition) :global(.text) {
+  color: var(--color-nordson-blue);
+}
+
+.dropdown:global(.ui.selection.visible.dropdown>.text:not(.default)) {
+  color: var(--color-gray);
+  font-weight: 400;
+}

@@ -1,0 +1,9 @@
+.twoRadioGroup {}
+
+.twoRadioGroup .ant-radio-group {
+  width: 100%;
+}
+
+.twoRadioGroup .ant-radio-button-wrapper {
+  width: 50%;
+}

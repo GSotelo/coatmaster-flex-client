@@ -1,0 +1,21 @@
+.controlBar {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.col{
+  align-items: center;
+  display: flex;
+  height: 100%;
+}
+
+.w12{
+  width: 13.5%;
+}
+
+.w58{
+  width: 56%;
+}

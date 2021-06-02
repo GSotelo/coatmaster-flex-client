@@ -1,0 +1,44 @@
+.menu {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.submenu {
+  background-color: var(--color-gypsum);
+  color: #33475b;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.item {
+  color: #33475b;
+  font-size: 1.1rem;
+  font-weight: normal;
+  letter-spacing: 0.09px;
+}
+
+.menu :global(.ant-menu-item-selected) {
+  background-color: var(--color-10-blue) !important;
+}
+
+.menu :global(.ant-menu-sub.ant-menu-inline) {
+  background-color: #fff !important;
+}
+
+.menu :global(.ant-menu-submenu-selected), .menu :global(.ant-menu-item-selected a) {
+  color: var(--color-nordson-blue) !important;
+}
+
+.menu :global(.ant-menu-item::after) {
+  border: 2px solid var(--color-nordson-blue) !important
+}
+
+@media only screen and (max-width:900px) {
+  .item {
+    font-size: 0.8rem;
+  }
+  .submenu {
+    font-size: 0.8rem;
+  }
+}

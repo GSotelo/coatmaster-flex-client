@@ -1,0 +1,8 @@
+.errorPage {
+  align-self: center;
+  width: 100%;
+}
+
+.errorPage :global(.ant-result-subtitle){
+  font-size: 1.2rem;
+}

@@ -1,0 +1,61 @@
+.titleBar {
+  cursor: pointer;
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+.col {
+  align-items: center;
+  display: flex;
+  height: 100%;
+}
+
+.textFormat {
+  color: var(--color-nordson-blue);
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.icon {
+  align-self: center;
+  height: 75%;
+}
+
+.icon svg {
+  height: 100%;
+}
+
+.wa {
+  width: 7%;
+}
+
+.wb {
+  width: 93%;
+}
+
+.wc {
+  width: 12%;
+}
+
+.wd {
+  width: 88%;
+}
+
+.wx {
+  width: 7%;
+}
+
+.wy {
+  width: 63%;
+}
+
+.wz {
+  width: 30%;
+}
+
+@media only screen and (max-width:900px) {
+  .textFormat {
+    font-size: 0.8rem;
+  }
+}

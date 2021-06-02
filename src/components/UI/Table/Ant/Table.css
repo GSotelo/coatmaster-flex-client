@@ -1,0 +1,42 @@
+.table.ant-table-wrapper {
+  width: 100%;
+}
+
+.table.ant-table-wrapper .tableCell {
+  width: 100%;
+}
+
+.table.ant-table-wrapper .tableCell {
+  display: flex;
+  align-items: center;
+}
+
+.table.ant-table-wrapper .tableCell .icon {
+  width: 20%;
+}
+
+.table.ant-table-wrapper .tableCell .label {
+  width: 80%;
+}
+
+.table.ant-table-wrapper thead .ant-table-cell {
+  width: 17%;
+  font-size: 1.3rem;
+  color: #fff;
+  background-color: var(--color-denim);
+}
+
+.table.ant-table-wrapper tbody .ant-table-cell {
+  width: 17%;
+  font-size: 1.3rem;
+  color: var(--color-nordson-blue);
+}
+
+.table.ant-table-wrapper .ant-table-content {
+  cursor: pointer;
+}
+
+.table.ant-table-wrapper .tableCell svg {
+  height: 80%;
+  height: 100%;
+}

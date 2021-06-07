@@ -24,9 +24,40 @@
 .controlTrendBox .controlBox {
   background-color: #fff;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   height: 30%;
   width: 100%;
+}
+
+.controlTrendBox .controlBox .controls {
+  flex: 3;
+}
+
+.controlTrendBox .controlBox .controls>div {
+  height: 100%;
+  padding-left: 2rem;
+}
+
+.controlTrendBox .controlBox .metrics {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  border: 1px solid var(--color-light-gray);
+  background-color: #e8eef9;
+}
+
+.controlTrendBox .controlBox .metrics .labelDropdownBox {
+  flex: 2;
+  width: 100%;
+}
+
+.controlTrendBox .controlBox .metrics .formatText {
+  color: rgb(119, 119, 119);
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  font-size: 1.3rem;
 }
 
 .controlTrendBox .controlBox .labelDropdownBox {
@@ -41,6 +72,7 @@
   height: 25%;
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 
 .controlTrendBox .controlBox :global(.ant-btn) {

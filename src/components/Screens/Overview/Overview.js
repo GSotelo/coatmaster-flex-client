@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import Button from "../../UI/Button/DonwloadButton/DownloadButton";
+import DownloadButton from "../../UI/Button/DonwloadButton/DownloadButton";
+import UpdateButton from "../../UI/Button/Standard/StandardButton";
 import Datepicker from "../../UI/Datepicker/Datepicker";
 import Dropdown from "../../UI/Dropdown/Dropdown";
 import LineChart from "./utilities/LineChart";
@@ -8,10 +9,18 @@ import TitleBar from "../../Bar/TitleBar/StandardTitleBar";
 import styles from "./Overview.module.css";
 import connectLocalServer from "./utilities/connectServer";
 import { createDropdownOptions, validateData } from "./utilities/miscellaneous";
-import { propsTitleBarTT, propsDownloadBtn } from "./utilities/props";
+import { propsTitleBarTT, propsDownloadBtn, propsToasterDanger } from "./utilities/props";
+import { toaster } from "evergreen-ui";
+import {
+  getAvgValueFromReport,
+  getMinValueFromReport,
+  getMaxValueFromReport
+} from "../../../utils/metrics";
+
 import _ from "lodash";
 
 class Overview extends Component {
+
   state = {
     api: {
       localServer: {
@@ -20,8 +29,15 @@ class Overview extends Component {
         status: false,
         applicationId: -1,
         blockId: -1,
-        report: {}
+        report: {},
+        reportIsRequired: false
       }
+    },
+
+    metrics: {
+      max: -1,
+      min: -1,
+      avg: -1
     },
 
     dropdown: {
@@ -65,12 +81,21 @@ class Overview extends Component {
     console.log("[componentDidMount]  Report during did mount");
     console.dir(report);
 
+    // At this point report data is valid...
+    const metrics = {
+      avg: getAvgValueFromReport(report),
+      min: getMinValueFromReport(report),
+      max: getMaxValueFromReport(report)
+    }
+
+
     this.setState(prevState => {
       const nextState = { ...prevState };
       nextState.api.localServer = dataLocalServer;
       nextState.api.localServer.report = { ...report, applicationId, blockId };
       nextState.dropdown.options.optionsAPL = optionsAPL;
       nextState.dropdown.options.optionsBLK = optionsBLK;
+      nextState.metrics = metrics;
       return nextState;
     });
   }
@@ -128,6 +153,7 @@ class Overview extends Component {
         nextUpdate.api.localServer.blocks = blocks;
         nextUpdate.dropdown.options.optionsBLK = optionsBLK;
         nextUpdate.dropdown.currentValue[selector] = value;
+        nextUpdate.api.localServer.reportIsRequired = true;
         return nextUpdate;
       });
     }
@@ -170,48 +196,82 @@ class Overview extends Component {
         const nextUpdate = { ...prevState };
         nextUpdate.dropdown.currentValue[selector] = value;
         nextUpdate.api.localServer.blockId = blockId;
+        nextUpdate.api.localServer.reportIsRequired = true;
         //nextUpdate.api.localServer.report = report;
         return nextUpdate;
       });
     }
   }
 
+  // Create report data
+  createReport = async (applicationId, blockId) => {
+    console.error("[createReport] Trying to get new data");
+
+    const invalidData = (applicationId === -1) || (blockId === -1);
+
+    // Validation of applicationId and blockId
+    if (invalidData) {
+      console.error("[createReport] Invalid applicationId or blockId");
+      toaster.danger(...propsToasterDanger);
+      return;
+    }
+
+    // console.log("[componentDidUpdate] Generate a new report");
+    // let report = {};
+    // const reqBody = {
+    //   query: {
+    //     configurationIds: [applicationId],
+    //     sampleIds: [blockId],
+    //   }
+    // }
+
+    // console.log("[componentDidUpdate] reqBody", reqBody);
+
+    // try {
+    //   report = await connectLocalServer.getReport(reqBody);
+    // } catch (err) {
+    //   console.error("[componentDidUpdate] Cannot get data for report");
+    //   return;
+    // }
+    // console.log("[componentDidUpdate] report");
+    // console.dir(report);
+
+    this.setState(prevState => {
+      const nextUpdate = { ...prevState };
+      nextUpdate.api.localServer.applicationId = applicationId;
+      nextUpdate.api.localServer.blockId = blockId;
+      nextUpdate.api.localServer.reportIsRequired = true;
+      // nextState.api.localServer.report = { ...report, applicationId, blockId };
+      return nextUpdate;
+    })
+  }
+
+
+
   async componentDidUpdate(prevProps, prevState) {
     console.log("[componentDidUpdate]");
     console.log("[componentDidUpdate] appid", this.state.api.localServer.applicationId);
     console.log("[componentDidUpdate] blockid", this.state.api.localServer.blockId);
+
+    console.log("[componentDidUpdate] report is required", this.state.api.localServer.reportIsRequired);
 
     // Here I should request the report data... (aveces sale undefined)
     const applicationId = this.state.api.localServer.applicationId;
     const blockId = this.state.api.localServer.blockId;
 
     const reportIsEmpty = _.isEmpty(this.state.api.localServer.report);
-    console.log("[componentDidUpdate] reportIsEmpty", reportIsEmpty);
-    console.log("[componentDidUpdate] report value", this.state.api.localServer.report);
+    //console.log("[componentDidUpdate] reportIsEmpty", reportIsEmpty);
+    //console.log("[componentDidUpdate] report value", this.state.api.localServer.report);
 
-    // Aqui tengo que comparar cuando tengo que crear un nuevo reporte. La data del estado reporte va ir directo 
-    // al grafico de linea para ser filtrado despues acorde al formato del line chart
 
     const reportApplicationId = this.state.api.localServer.report.applicationId;
     const reportBlockId = this.state.api.localServer.report.blockId;
-    let createReport = false;
+
 
     console.log("[componentDidUpdate] reportApplicationId", reportApplicationId);
     console.log("[componentDidUpdate] reportBlockId", reportBlockId);
 
-    // if (!(applicationId === reportApplicationId) && (blockId === reportBlockId)) {
-    //   console.log("Create new report");
-    //   createReport = true;
-    // }
-
-    if ((reportApplicationId !== applicationId) || (blockId !== reportBlockId)) {
-      console.log("Create new report");
-      createReport = true;
-    }
-
-    console.log("[componentDidUpdate] create report needed", createReport);
-
-    if (createReport) {
+    if (this.state.api.localServer.reportIsRequired) {
       console.log("[componentDidUpdate] Generate a new report");
       let report = {};
       const reqBody = {
@@ -233,12 +293,20 @@ class Overview extends Component {
       console.log("[componentDidUpdate] report");
       console.dir(report);
 
+      // Here good place to create a report
+      const metrics = {
+        avg: getAvgValueFromReport(report),
+        min: getMinValueFromReport(report),
+        max: getMaxValueFromReport(report)
+      }
+
       this.setState(prevState => {
-        const nextState = {...prevState};
+        const nextState = { ...prevState };
         nextState.api.localServer.report = { ...report, applicationId, blockId };
+        nextState.api.localServer.reportIsRequired = false;
+        nextState.metrics = metrics;
         return nextState;
       })
-
     }
   }
 
@@ -255,17 +323,35 @@ class Overview extends Component {
         options: this.state.dropdown.options[`options${id}`],
         value: this.state.dropdown.currentValue[`currentValue${id}`],
         id,
-        key:index
+        key: index
       }
     ));
   }
+
+
+  updateData(applicationId, blockId) {
+    console.log("The app id vs block id");
+    // Get application id
+    console.log("applicationId: ", applicationId);
+
+    // Get block id
+    console.log("blockId: ", blockId);
+
+    // Update data
+    this.createReport(applicationId, blockId);
+  }
+
 
   render() {
     console.log("[Render] UI Rerendering...")
     console.log("[Render] Report:")
     console.log("[Render]", this.state.api.localServer.report);
     // DOM reference to download JSON files
-   
+
+    // TEMP MODE
+    const { applicationId, blockId } = this.state.api.localServer;
+    const { max, min, avg } = this.state.metrics;
+
     // Extract some class methods / fields
     const { createDropdownProps } = this;
 
@@ -281,6 +367,9 @@ class Overview extends Component {
       controlTrendBox,
       dropdownBox,
       labelBox,
+      controls,
+      metrics,
+      formatText
     } = styles;
 
     // Dropdown components
@@ -301,24 +390,50 @@ class Overview extends Component {
 
           <div className={controlTrendBox}>
             <div className={controlBox}>
-              <div className={datepickerBox}>
-                <Datepicker />
+              <div className={controls}>
+                <div>
+                  <div className={datepickerBox}>
+                    <Datepicker />
+                  </div>
+
+                  <div className={labelDropdownBox}>
+                    <span className={labelBox}>Application:</span>
+                    <div className={dropdownBox}>{DropdownAPL}</div>
+                  </div>
+
+                  <div className={labelDropdownBox}>
+                    <span className={labelBox}>Block:</span>
+                    <div className={dropdownBox}>{DropdownBLK}</div>
+                  </div>
+
+                  <div className={buttonBox}>
+                    <DownloadButton data={dataLineChartTT}>
+                      Download
+                    </DownloadButton>
+
+                    <UpdateButton
+                      updater={this.updateData.bind(this, applicationId, blockId)}>
+                      Update
+                    </UpdateButton>
+                  </div>
+                </div>
               </div>
 
-              <div className={labelDropdownBox}>
-                <span className={labelBox}>Application:</span>
-                <div className={dropdownBox}>{DropdownAPL}</div>
-              </div>
+              <div className={metrics}>
+                <div className={labelDropdownBox}>
+                  <span className={labelBox}>Maximum (u):</span>
+                  <div className={formatText}>{max}</div>
+                </div>
 
-              <div className={labelDropdownBox}>
-                <span className={labelBox}>Block:</span>
-                <div className={dropdownBox}>{DropdownBLK}</div>
-              </div>
+                <div className={labelDropdownBox}>
+                  <span className={labelBox}>Average (u)</span>
+                  <div className={formatText}>{avg}</div>
+                </div>
 
-              <div className={buttonBox}>
-                <Button data={dataLineChartTT}>
-                  Download
-                </Button>
+                <div className={labelDropdownBox}>
+                  <span className={labelBox}>Minimum (u)</span>
+                  <div className={formatText}>{min}</div>
+                </div>
               </div>
             </div>
 

@@ -1,6 +1,7 @@
 import axiosCoatmasterFlex from "../../../../api/axios";
 import _ from "lodash";
-
+import { toaster } from "evergreen-ui";
+import { propsToasterServerStatus, propsToasterServerApplications, propsToasterServerBlocks } from "./props";
 
 const getStatus = async (url) => {
   let response;
@@ -69,11 +70,13 @@ const startup = async (customAppId) => {
   } catch (err) {
     if (err.message === "status") {
       console.error("[getStatus]: Not possible to fetch local server status");
+      toaster.danger(...propsToasterServerStatus);
       return fallback;
     }
 
     if (err.message === "applications") {
       console.error("[getApplications]: Not possible to fetch applications");
+      toaster.danger(...propsToasterServerApplications);
       return fallback;
     }
   }
@@ -86,6 +89,7 @@ const startup = async (customAppId) => {
     console.log(blocks)
   } catch (error) {
     console.error("[getBlocks]: Not possible to fetch blocks");
+    toaster.danger(...propsToasterServerBlocks);
     return fallback;
   }
 

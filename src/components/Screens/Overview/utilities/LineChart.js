@@ -1,8 +1,9 @@
 import React from "react";
 import Line from "../../../UI/Graph/Line/Line";
-import { createDateObject } from "../../../../utils/time";
 
 import _ from "lodash";
+import { createDateObject } from "../../../../utils/time";
+
 
 /**
  * General notes:
@@ -29,6 +30,9 @@ const LineChart = ({ data, id }) => {
   const layout = layoutTT;
   let lineData;
 
+  console.log("[LineChart] data");
+  console.dir(data);
+
   const fallback = [
     {
       id,
@@ -38,6 +42,7 @@ const LineChart = ({ data, id }) => {
 
   let dataArray;
   try {
+    console.log("Im here ...");
     dataArray = data.tuples.map(el => (
       {
         x: createDateObject(el[5], "YYYY-MM-DDTHH:mm:ss").$d.toISOString(), // "2019-09-12T22:46:27"
@@ -45,7 +50,9 @@ const LineChart = ({ data, id }) => {
       }
     ));
 
-    lineData = [{ id, data: dataArray }];
+    const filteredData = dataArray.filter(({ y }) => y !== "-.-");
+    lineData = [{ id, data: filteredData }];
+
   } catch (err) {
     console.error("[LineChart] Cannot get data from empty array")
     lineData = fallback;

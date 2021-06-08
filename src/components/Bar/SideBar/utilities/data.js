@@ -3,6 +3,11 @@ const productionItems = [
     key: "sub1-i1",
     value: "Overview",
     path: "/coatmaster-flex/overview"
+  },
+  {
+    key: "sub1-i2",
+    value: "Table",
+    path: "/coatmaster-flex/table"
   }
 ];
 

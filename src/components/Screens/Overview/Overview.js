@@ -426,12 +426,12 @@ class Overview extends Component {
                 </div>
 
                 <div className={labelDropdownBox}>
-                  <span className={labelBox}>Average (u)</span>
+                  <span className={labelBox}>Average (u):</span>
                   <div className={formatText}>{avg}</div>
                 </div>
 
                 <div className={labelDropdownBox}>
-                  <span className={labelBox}>Minimum (u)</span>
+                  <span className={labelBox}>Minimum (u):</span>
                   <div className={formatText}>{min}</div>
                 </div>
               </div>

@@ -9,7 +9,12 @@ import TitleBar from "../../Bar/TitleBar/StandardTitleBar";
 import styles from "./Overview.module.css";
 import connectLocalServer from "./utilities/connectServer";
 import { createDropdownOptions, validateData } from "./utilities/miscellaneous";
-import { propsTitleBarTT, propsDownloadBtn, propsToasterDanger } from "./utilities/props";
+import {
+  propsTitleBarTT,
+  propsToasterUpdateFailed,
+  propsToasterDanger,
+  propsToasterSuccessfulUpdate
+} from "./utilities/props";
 import { toaster } from "evergreen-ui";
 import {
   getAvgValueFromReport,
@@ -66,11 +71,10 @@ class Overview extends Component {
       query: {
         configurationIds: [applicationId],
         sampleIds: [blockId],
-        //last: 5 // This might be the key to filter elements by date
+        //last: 5
       }
-    }
+    };
 
-    console.log("[componentDidMount] Trying to get report with app and block id", applicationId, blockId);
     try {
       report = await connectLocalServer.getReport(reqBody);
     } catch (err) {
@@ -81,13 +85,12 @@ class Overview extends Component {
     console.log("[componentDidMount]  Report during did mount");
     console.dir(report);
 
-    // At this point report data is valid...
+    // At this point fetch data is valid
     const metrics = {
       avg: getAvgValueFromReport(report),
       min: getMinValueFromReport(report),
       max: getMaxValueFromReport(report)
-    }
-
+    };
 
     this.setState(prevState => {
       const nextState = { ...prevState };
@@ -100,24 +103,23 @@ class Overview extends Component {
     });
   }
 
+  componentWillUnmount() {
+    console.log("[componentWillUnmount]");
+    // Here is a good place for some clean up
+    //const reportDataForTableOverview = this.state.api.localServer.report;
+    const reportDataForTableOverview = JSON.stringify(this.state.api.localServer.report);
+    localStorage.setItem('report', reportDataForTableOverview);
+  }
+
   updateDropdownState = async (e, data, id) => {
     // Controlled dropdown
     const { value } = data; // Depends on the dropdown's API
     const selector = `currentValue${id}`;
 
-    // this.setState(prevState => {
-    //   console.log("up1");
-    //   const nextUpdate = { ...prevState };
-    //   nextUpdate.dropdown.currentValue[selector] = value;
-    //   return nextUpdate;
-    // });
-
     // When I call this method all applications are loaded into the state
     const index = value - 1;
     if (id === "APL") {
       const applicationsIsEmpty = _.isEmpty(this.state.api.localServer.applications);
-
-      console.log(this.state.api.localServer.applications);
 
       if (applicationsIsEmpty) {
         console.error("[updateDropdownState] Applications data is empty");
@@ -134,16 +136,10 @@ class Overview extends Component {
         console.error("[updateDropdownState] Cannot get data for blocks");
         return;
       }
-      console.log("blocks");
-      console.dir(blocks);
 
+      // Once "blocks" contains valid data, the first block id is taken for displaying in the UI
       const blockId = blocks[0].id;
-      console.log("blockId");
-      console.dir(blockId);
-
       const optionsBLK = createDropdownOptions(blocks, validateData);
-      console.log("optionsBLK");
-      console.dir(optionsBLK);
 
       this.setState(prevState => {
         console.log("up2");
@@ -159,45 +155,14 @@ class Overview extends Component {
     }
 
     if (id === "BLK") {
-      console.log("APL dd value", this.state.dropdown.currentValue.currentValueAPL);
-      console.log("BLK dd value", this.state.dropdown.currentValue.currentValueBLK);
-
-      console.log("application id");
-      console.dir(this.state.api.localServer.applicationId);
-      const applicationId = this.state.api.localServer.applicationId;
+      //const applicationId = this.state.api.localServer.applicationId;
       const blockId = this.state.api.localServer.blocks[index]?.id;
 
-      console.log("blocks");
-      console.dir(this.state.api.localServer.blocks);
-
-      console.log("block id");
-      console.dir(blockId);
-
-      // let report = {};
-      // const reqBody = {
-      //   query: {
-      //     configurationIds: [applicationId],
-      //     sampleIds: [blockId],
-      //     last: 5 // This might be the key to filter elements by date
-      //   }
-      // }
-
-      // try {
-      //   report = await connectLocalServer.getReport(reqBody);
-      // } catch (err) {
-      //   console.error("[updateDropdownState] Cannot get data for report");
-      //   return;
-      // }
-      // console.log("report");
-      // console.dir(report);
-
       this.setState(prevState => {
-        console.log("up3");
         const nextUpdate = { ...prevState };
         nextUpdate.dropdown.currentValue[selector] = value;
         nextUpdate.api.localServer.blockId = blockId;
         nextUpdate.api.localServer.reportIsRequired = true;
-        //nextUpdate.api.localServer.report = report;
         return nextUpdate;
       });
     }
@@ -205,36 +170,16 @@ class Overview extends Component {
 
   // Create report data
   createReport = async (applicationId, blockId) => {
-    console.error("[createReport] Trying to get new data");
+    console.log("[createReport]");
 
+    // Create report if applicationId / blockId have meaninful values
     const invalidData = (applicationId === -1) || (blockId === -1);
 
-    // Validation of applicationId and blockId
     if (invalidData) {
       console.error("[createReport] Invalid applicationId or blockId");
       toaster.danger(...propsToasterDanger);
       return;
     }
-
-    // console.log("[componentDidUpdate] Generate a new report");
-    // let report = {};
-    // const reqBody = {
-    //   query: {
-    //     configurationIds: [applicationId],
-    //     sampleIds: [blockId],
-    //   }
-    // }
-
-    // console.log("[componentDidUpdate] reqBody", reqBody);
-
-    // try {
-    //   report = await connectLocalServer.getReport(reqBody);
-    // } catch (err) {
-    //   console.error("[componentDidUpdate] Cannot get data for report");
-    //   return;
-    // }
-    // console.log("[componentDidUpdate] report");
-    // console.dir(report);
 
     this.setState(prevState => {
       const nextUpdate = { ...prevState };
@@ -246,59 +191,43 @@ class Overview extends Component {
     })
   }
 
-
-
   async componentDidUpdate(prevProps, prevState) {
-    console.log("[componentDidUpdate]");
-    console.log("[componentDidUpdate] appid", this.state.api.localServer.applicationId);
-    console.log("[componentDidUpdate] blockid", this.state.api.localServer.blockId);
+    console.log("[componentDidUpdate] applicationId", this.state.api.localServer.applicationId);
+    console.log("[componentDidUpdate] blockId", this.state.api.localServer.blockId);
 
-    console.log("[componentDidUpdate] report is required", this.state.api.localServer.reportIsRequired);
-
-    // Here I should request the report data... (aveces sale undefined)
+    // This values are always available because of the fallback data
     const applicationId = this.state.api.localServer.applicationId;
     const blockId = this.state.api.localServer.blockId;
 
-    const reportIsEmpty = _.isEmpty(this.state.api.localServer.report);
-    //console.log("[componentDidUpdate] reportIsEmpty", reportIsEmpty);
-    //console.log("[componentDidUpdate] report value", this.state.api.localServer.report);
-
-
-    const reportApplicationId = this.state.api.localServer.report.applicationId;
-    const reportBlockId = this.state.api.localServer.report.blockId;
-
-
-    console.log("[componentDidUpdate] reportApplicationId", reportApplicationId);
-    console.log("[componentDidUpdate] reportBlockId", reportBlockId);
-
     if (this.state.api.localServer.reportIsRequired) {
-      console.log("[componentDidUpdate] Generate a new report");
+      console.log("[componentDidUpdate] Generate new report");
       let report = {};
       const reqBody = {
         query: {
           configurationIds: [applicationId],
           sampleIds: [blockId],
-          //last: 5 // This might be the key to filter elements by date
+          //last: 3 // Select the last "n" elements to display in chart
         }
       }
-
-      console.log("[componentDidUpdate] reqBody", reqBody);
 
       try {
         report = await connectLocalServer.getReport(reqBody);
       } catch (err) {
         console.error("[componentDidUpdate] Cannot get data for report");
+        toaster.danger(...propsToasterUpdateFailed);
         return;
       }
-      console.log("[componentDidUpdate] report");
+
+      toaster.success(...propsToasterSuccessfulUpdate);
+      console.log("[componentDidUpdate] The following report was created: ");
       console.dir(report);
 
-      // Here good place to create a report
+      // create metrics based on given report
       const metrics = {
         avg: getAvgValueFromReport(report),
         min: getMinValueFromReport(report),
         max: getMaxValueFromReport(report)
-      }
+      };
 
       this.setState(prevState => {
         const nextState = { ...prevState };
@@ -310,12 +239,11 @@ class Overview extends Component {
     }
   }
 
-
   createDropdownProps = (ids) => {
     const baseProps = {
       placeholder: "Select",
       onChange: this.updateDropdownState
-    }
+    };
 
     return ids.map((id, index) => (
       {
@@ -328,32 +256,19 @@ class Overview extends Component {
     ));
   }
 
-
   updateData(applicationId, blockId) {
-    console.log("The app id vs block id");
-    // Get application id
-    console.log("applicationId: ", applicationId);
-
-    // Get block id
-    console.log("blockId: ", blockId);
-
-    // Update data
+    console.log("[updateData] applicationId: ", applicationId);
+    console.log("[updateData] blockId: ", blockId);
     this.createReport(applicationId, blockId);
   }
 
-
   render() {
-    console.log("[Render] UI Rerendering...")
-    console.log("[Render] Report:")
-    console.log("[Render]", this.state.api.localServer.report);
-    // DOM reference to download JSON files
-
-    // TEMP MODE
-    const { applicationId, blockId } = this.state.api.localServer;
-    const { max, min, avg } = this.state.metrics;
+    console.log("[Render] Updating UI interface");
 
     // Extract some class methods / fields
     const { createDropdownProps } = this;
+    const { applicationId, blockId } = this.state.api.localServer;
+    const { max, min, avg } = this.state.metrics;
 
     const {
       buttonBox,
@@ -375,7 +290,7 @@ class Overview extends Component {
     // Dropdown components
     const dropdownIds = ["APL", "BLK"];
     const dropdownProps = createDropdownProps(dropdownIds);
-    const [DropdownAPL, DropdownBLK] = dropdownProps.map(prop => <Dropdown {...prop} />)
+    const [DropdownAPL, DropdownBLK] = dropdownProps.map(prop => <Dropdown {...prop} />);
 
     // Line chart
     const dataLineChartTT = this.state.api.localServer.report;

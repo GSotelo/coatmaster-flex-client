@@ -1,13 +1,22 @@
 import axiosCoatmasterFlex from "../../../../api/axios";
 import _ from "lodash";
 import { toaster } from "evergreen-ui";
-import { propsToasterServerStatus, propsToasterServerApplications, propsToasterServerBlocks } from "./props";
+import {
+  propsToasterServerStatus,
+  propsToasterServerApplications,
+  propsToasterServerBlocks,
+  propsFailedStatusLocalServer,
+  propsEmptyApplications,
+  propsEmptyBlocks,
+  propsFailedReport
+} from "./props";
 
 const getStatus = async (url) => {
   let response;
   try {
     response = await axiosCoatmasterFlex.get(url);
   } catch (err) {
+    toaster.danger(...propsFailedStatusLocalServer);
     throw new Error("status");
   }
 
@@ -21,6 +30,7 @@ const getApplications = async (url) => {
   try {
     response = await axiosCoatmasterFlex.get(url);
   } catch (err) {
+    toaster.danger(...propsEmptyApplications);
     throw new Error("applications");
   }
 
@@ -34,6 +44,7 @@ const getBlocks = async (appId) => {
   try {
     response = await axiosCoatmasterFlex.get("/samples", { params: { configId: appId } });
   } catch (err) {
+    toaster.danger(...propsEmptyBlocks);
     throw new Error("blocks");
   }
 
@@ -46,6 +57,7 @@ const getReport = async (reqBody) => {
   try {
     response = await axiosCoatmasterFlex.post("/measurement/report", reqBody);
   } catch (err) {
+    toaster.danger(...propsFailedReport);
     throw new Error("[getReport] Not possible to fetch data");
   }
 

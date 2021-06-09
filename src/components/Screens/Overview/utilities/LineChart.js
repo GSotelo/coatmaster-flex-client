@@ -27,11 +27,9 @@ const layoutTT = {
 };
 
 const LineChart = ({ data, id }) => {
+  console.log("[LineChart] data");
   const layout = layoutTT;
   let lineData;
-
-  console.log("[LineChart] data");
-  console.dir(data);
 
   const fallback = [
     {
@@ -42,7 +40,6 @@ const LineChart = ({ data, id }) => {
 
   let dataArray;
   try {
-    console.log("Im here ...");
     dataArray = data.tuples.map(el => (
       {
         x: createDateObject(el[5], "YYYY-MM-DDTHH:mm:ss").$d.toISOString(), // "2019-09-12T22:46:27"
@@ -52,7 +49,7 @@ const LineChart = ({ data, id }) => {
 
     const filteredData = dataArray.filter(({ y }) => y !== "-.-");
     lineData = [{ id, data: filteredData }];
-
+    
   } catch (err) {
     console.error("[LineChart] Cannot get data from empty array")
     lineData = fallback;

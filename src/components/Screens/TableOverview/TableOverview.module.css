@@ -1,0 +1,38 @@
+.tableOverview {
+  height: 100%;
+  width: 100%;
+  padding: 0.5rem;
+  display: flex;
+}
+
+.content {
+  height: 100%;
+  width: 100%;
+  border: 1px solid var(--color-light-gray);
+  background-color: #fff;
+}
+
+.headerBox {
+  height: 10%;
+  width: 80%;
+  display: flex;
+  padding-left: 1rem;
+}
+
+.main {
+  background-color: lightgoldenrodyellow;
+  height: 90%;
+  width: 100%;
+  display: flex;
+}
+
+.titleBarBox {
+  height: 100%;
+  width: 100%;
+}
+
+.tableBox {
+  height: 100%;
+  width: 100%;
+  padding: 2rem 1rem;
+}

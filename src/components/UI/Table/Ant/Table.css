@@ -1,5 +1,6 @@
 .table.ant-table-wrapper {
   width: 100%;
+  height: 100%;
 }
 
 .table.ant-table-wrapper .tableCell {

@@ -9,13 +9,14 @@ import statusOk from "../../../../assets/icons/statusAllrightBig.ico";
 import statusWarning from "../../../../assets/icons/statusWarningBig.ico";
 import statusAlert from "../../../../assets/icons/statusAlertBig.ico";
 import { ReactComponent as Thickness } from "../../../../assets/svg/thickness.svg";
+import _ from 'lodash';
 
 const TableCell = ({ icon, label }) => (
   <div className="tableCell">
     <span className="icon">{icon}</span>
     <span className="label">{label}</span>
   </div>
-);
+)
 
 const columns = [
   {
@@ -56,7 +57,7 @@ const columns = [
   }
 ];
 
-const data = [
+const dataTest = [
   {
     key: '1',
     region: [<Product />, "ROI 1"],
@@ -149,13 +150,32 @@ const data = [
   },
 ];
 
-const CustomTable = (props) => (
-  <Table
-    className="table"
-    columns={columns}
-    dataSource={data}
-    pagination={{defaultPageSize:7}}
-  />
-);
+const processDataFromReport = (report) => {
+  console.log("[processDataFromReport]");
 
-export default CustomTable;
+
+  if (_.isEmpty(report)) {
+    return;
+  }
+
+  const reportAsObject = JSON.parse(report);
+  console.dir(reportAsObject);
+
+
+  return dataTest;
+}
+
+const CustomTable = ({ report }) => {
+  const dataTable = processDataFromReport(report);
+
+  return (
+    <Table
+      className="table"
+      columns={columns}
+      dataSource={dataTable}
+      pagination={{ defaultPageSize: 5 }}
+    />
+  )
+}
+
+export default CustomTable

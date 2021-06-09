@@ -36,7 +36,7 @@ export const general = {
   pointSize: 0, // Normal -> 6
   pointSymbol: CustomSymbol,
 
-  xFormat: "time:%Y/%m/%d %H:%M",
+  xFormat: "time:%Y/%m/%d %H:%M:%S",
   xScale: {
     format: '%Y-%m-%dT%H:%M:%S.%LZ',
     type: 'time',

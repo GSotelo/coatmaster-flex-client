@@ -3,11 +3,8 @@ import _ from "lodash";
 const validateData = (report) => {
   let yValues;
   try {
-    const filteredData = report.tuples.filter( el => el[6] !== "-.-");
-    console.log("filteredData");
-    console.dir(filteredData);
+    const filteredData = report.tuples.filter(el => el[6] !== "-.-");
     yValues = filteredData.map(el => parseFloat(el[6]));
-    //yValues = report.tuples.map(el => parseFloat(el[6]));
   } catch (error) {
     throw new Error("[validateData]: Invalid report data");
   }
